@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtual Joystick Usage Example</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  
+  <style>
+    
+    body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #222;
+  color: #fff;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+}
+
+h1 {
+  margin: 0;
+}
+
+.joystick-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.debug-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: gray;
+}
+
+
+pre {
+  margin: 20px;
+  background-color:#1E1E1E;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1px;
+  overflow-x: auto; /* Set overflow-x to auto */
+  white-space: pre-wrap; /* Wrap long lines of text */
+  max-width: 100%; /* Set maximum width to fit the page */
+}
+
+code {
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+.info-text {
+  font-size: 1.1rem;
+  margin: 20px;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+p {
+  margin: 20px;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+/* Responsive styles */
+
+@media screen and (max-width: 768px) {
+  .joystick-container {
+    margin-top: 20px;
+  }
+
+  .debug-container {
+    margin-top: 10px;
+  }
+
+  pre {
+    margin: 10px;
+  }
+
+  .info-text,
+  p {
+    margin: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .joystick-container {
+    margin-top: 10px;
+  }
+
+  .debug-container {
+    margin-top: 5px;
+  }
+
+  pre {
+    margin: 5px;
+  }
+
+  .info-text,
+  p {
+    margin: 5px;
+    font-size: 0.8rem;
+  }
+}
+
+    
+  </style>
+    
+  <body class="dark-mode">
+    <header>
+      <h1>Virtual Joystick Usage Example</h1>
+    </header>
+    
+    <div class="joystick-container">
+      <div class="joystick"></div>
+      <div class="debug-container">
+        <div>Delta X: <span id="delta-x">0</span></div>
+        <div>Delta Y: <span id="delta-y">0</span></div>
+      </div>
+      <pre><code id="code-block">
+        import VirtualJoystick from './path-to/Joystick.js';
+
+        const joystickContainer = document.querySelector('.joystick');
+        const deltaX = document.querySelector('#delta-x');
+        const deltaY = document.querySelector('#delta-y');
+
+        const joystick = new VirtualJoystick(joystickContainer, {
+          width: 150,
+          height: 150,
+          color: 'gray',
+          handleColor: 'white',
+          handleRadius: 30,
+          onChange: function(delta) {
+            //your code goes here....
+            deltaX.textContent = delta.x.toFixed(2);
+            deltaY.textContent = delta.y.toFixed(2);
+          },
+        });
+      </code></pre>
+
+      <p class="info-text">
+        To use the VirtualJoystick class, first import it in your JavaScript file using the following code:
+      </p>
+      <pre><code>import VirtualJoystick from './path-to/Joystick.js';</code></pre>
+      <p class="info-text">
+        Then, create a new instance of the VirtualJoystick class and pass in a DOM element as the first argument to create the joystick interface. You can customize the appearance and behavior of the joystick by passing in an options object as the second argument. The <code>onChange</code> option allows you to specify a callback function that will be called whenever the position of the joystick handle changes. In the example above, we are updating the <code>deltaX</code> and <code>deltaY</code> elements with the new delta values on each change.
+      </p>
+
+      <p>
+        The VirtualJoystick is a JavaScript class that allows the creation of a
+        joystick interface for web applications. It provides the ability to
+        detect changes in position of the joystick handle and return this data
+        as an object containing the delta values for x and y.
+      </p>
+      <p>
+        The code above shows an example usage of the VirtualJoystick class,
+        creating a joystick interface with a gray base and white handle, 150
+        pixels in size, and displaying the delta x and y values as they are
+        updated in the DOM. The onChange callback function is used to update the
+        values of deltaX and deltaY elements.
+      </p>
+    </div>
+
+
+    <script type="module">
+      
+      import VirtualJoystick from '/jsm/controls/Joystick.js';
+
+const joystickContainer = document.querySelector('.joystick');
+const deltaX = document.querySelector('#delta-x');
+const deltaY = document.querySelector('#delta-y');
+
+const joystick = new VirtualJoystick(joystickContainer, {
+  width: 150,
+  height: 150,
+  color: 'gray',
+  handleColor: 'white',
+  handleRadius: 30,
+  onChange: function(delta) {
+    deltaX.textContent = delta.x.toFixed(2);
+    deltaY.textContent = delta.y.toFixed(2);
+  },
+});
+
+      
+    </script>
+  </body>
+</html>
