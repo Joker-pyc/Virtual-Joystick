@@ -1,3 +1,10 @@
+/*This Virtual Joystick module is an open source project
+you can use it for any purpose as this joystick class is made in JavaScript it works
+perfectly in web applications 
+Author: Santosh Maurya 
+licensed under:
+MIT license
+*/
 class VirtualJoystick {
   constructor(container, options = {}) {
     this.container = container;
