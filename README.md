@@ -1,4 +1,4 @@
-# Joystick
+# Virtual Joystick
 
 Virtual Joystick is a JavaScript library that allows you to create a joystick control for touch devices.
 
