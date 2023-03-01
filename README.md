@@ -17,12 +17,14 @@ The container parameter is the HTML element where the joystick control will be p
 
 The options parameter is an object containing various configuration options:
 
-width: The width of the joystick control in pixels (default: 100).
-height: The height of the joystick control in pixels (default: 100).
-color: The background color of the joystick control (default: 'gray').
-handleColor: The color of the joystick handle (default: 'white').
-handleRadius: The radius of the joystick handle in pixels (default: 20).
-onChange: A callback function that will be called when the joystick position changes. The function will receive a delta object with x and y properties representing the position of the joystick handle relative to the center of the joystick control.
+### width: The width of the joystick control in pixels (default: 100).
+### height: The height of the joystick control in pixels (default: 100).
+### color: The background color of the joystick control (default: 'gray').
+### handleColor: The color of the joystick handle (default: 'white').
+### handleRadius: The radius of the joystick handle in pixels (default: 20).
+### onChange: A callback function that will be called when the joystick position changes. The function will receive a delta object with x and y properties representing the position of the joystick handle relative to the center of the joystick control.
+
+
 Here's an example usage:
 
 
@@ -45,4 +47,6 @@ const joystick = new VirtualJoystick(container, {
 
 
 License
+
+
 Virtual Joystick is released under the MIT License. See the LICENSE file for details
