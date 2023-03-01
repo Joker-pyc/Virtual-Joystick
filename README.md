@@ -5,7 +5,8 @@ npm install virtual-joystick
 Or include it directly in your HTML file:
 
 
-`<script src="path/to/virtual-joystick.js"></script>`
+```<script src="path/to/virtual-joystick.js"></script>```
+
 Usage
 To use Virtual Joystick, create a new instance of the VirtualJoystick class and pass in the container element and options as parameters:
 
@@ -22,7 +23,8 @@ handleRadius: The radius of the joystick handle in pixels (default: 20).
 onChange: A callback function that will be called when the joystick position changes. The function will receive a delta object with x and y properties representing the position of the joystick handle relative to the center of the joystick control.
 Here's an example usage:
 
-`
+
+```
 const container = document.getElementById('joystick-container');
 const joystick = new VirtualJoystick(container, {
   width: 150,
@@ -34,6 +36,8 @@ const joystick = new VirtualJoystick(container, {
     console.log(delta);
   },
 });
-`
+```
+
+
 License
 Virtual Joystick is released under the MIT License. See the LICENSE file for details
