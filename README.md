@@ -1,11 +1,13 @@
 # Joystick
+
 Virtual Joystick is a JavaScript library that allows you to create a joystick control for touch devices.
 
 npm install virtual-joystick
 Or include it directly in your HTML file:
 
-
-```<script src="path/to/virtual-joystick.js"></script>```
+```html
+<script src="path/to/virtual-joystick.js"></script>
+```
 
 Usage
 To use Virtual Joystick, create a new instance of the VirtualJoystick class and pass in the container element and options as parameters:
@@ -24,7 +26,8 @@ onChange: A callback function that will be called when the joystick position cha
 Here's an example usage:
 
 
-```
+```javascript
+
 const container = document.getElementById('joystick-container');
 const joystick = new VirtualJoystick(container, {
   width: 150,
@@ -33,9 +36,11 @@ const joystick = new VirtualJoystick(container, {
   handleColor: 'black',
   handleRadius: 38,
   onChange: function(delta) {
+   //your code... 
     console.log(delta);
   },
 });
+
 ```
 
 
