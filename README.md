@@ -28,6 +28,7 @@ The options parameter is an object containing various configuration options:
 Here's an example usage:
 ## a basic game touch the ball :
 https://joker-pyc.github.io/Touch-the-ball/
+_________________________________________
 
 ```javascript
 
