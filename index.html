@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtual Joystick Usage Example</title>
-    <link rel="stylesheet" href="style.css" />
+    
   </head>
   
   <style>
@@ -179,7 +179,7 @@ p {
       
       
     
-  class VirtualJoystick {
+      class VirtualJoystick {
   constructor(container, options = {}) {
     this.container = container;
     this.options = Object.assign(
@@ -282,8 +282,24 @@ p {
   }
 
   _updatePosition(x, y) {
-const dx = x - this.joystickRect.left - this.options.width / 2 + this.options.handleRadius;
+    let clientX = x;
+    let clientY = y;
+
+    if (this.touchId !== null) {
+      for (let i = 0; i < event.changedTouches.length; i++) {
+        if (event.changedTouches[i].identifier === this.touchId) {
+          clientX = event.changedTouches[i].clientX;
+          clientY = event.changedTouches[i].clientY;
+          const dx = x - this.joystickRect.left - this.options.width / 2 + this.options.handleRadius;
 const dy = y - this.joystickRect.top - this.options.height / 2 + this.options.handleRadius;
+
+          break;
+        }
+      }
+    }
+
+    const dx = clientX - this.joystickRect.left - this.options.width / 2;
+    const dy = clientY - this.joystickRect.top - this.options.height / 2;
 
     const distance = Math.sqrt(dx * dx + dy * dy);
 
@@ -314,8 +330,7 @@ const dy = y - this.joystickRect.top - this.options.height / 2 + this.options.ha
     }
   }
 }
-
-
+ 
 
 
 
