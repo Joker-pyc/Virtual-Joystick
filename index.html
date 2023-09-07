@@ -282,8 +282,9 @@ p {
   }
 
   _updatePosition(x, y) {
-    const dx = x - this.joystickRect.left - this.options.width / 2;
-    const dy = y - this.joystickRect.top - this.options.height / 2;
+const dx = x - this.joystickRect.left - this.options.width / 2 + this.options.handleRadius;
+const dy = y - this.joystickRect.top - this.options.height / 2 + this.options.handleRadius;
+
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance > this.handleRadius) {
