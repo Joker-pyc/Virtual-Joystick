@@ -3,44 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Joystick - Interactive Demo</title>
+    <title>Virtual Joystick Maze Game</title>
     <style>
         :root {
-            --primary-color: #6a11cb;
-            --secondary-color: #2575fc;
+            --primary-color: #6200ea;
+            --secondary-color: #03dac6;
             --text-color: #ffffff;
-            --background-color: #1a1a2e;
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
         }
-
         body {
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-
         .glassmorphic {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
-
         header {
             text-align: center;
             padding: 2rem;
+            background-color: var(--surface-color);
         }
-
         h1 {
             margin: 0;
             font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-
         main {
             display: flex;
             flex-wrap: wrap;
@@ -49,52 +49,55 @@
             gap: 2rem;
             padding: 2rem;
         }
-
         .joystick-container {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         .joystick {
             width: 200px;
             height: 200px;
             margin-bottom: 1rem;
         }
-
         .debug-container {
             font-size: 1.2rem;
             text-align: center;
+            color: var(--secondary-color);
         }
-
         .demo-container, .code-container {
             flex: 1;
             min-width: 300px;
             max-width: 600px;
             padding: 2rem;
+            background-color: var(--surface-color);
         }
-
         .demo-actions {
             display: flex;
             justify-content: center;
             gap: 1rem;
             margin-top: 1rem;
         }
-
         button {
-            background-color: var(--secondary-color);
+            background-color: var(--primary-color);
             color: var(--text-color);
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.1s ease;
         }
-
         button:hover {
-            background-color: var(--primary-color);
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
         }
-
+        button:active {
+            transform: translateY(0);
+        }
+        canvas {
+            border: 2px solid var(--secondary-color);
+            margin-top: 1rem;
+            border-radius: 10px;
+        }
         pre {
             background-color: var(--background-color);
             border-radius: 10px;
@@ -102,26 +105,36 @@
             overflow-x: auto;
             font-size: 0.9rem;
         }
-
         code {
-            color: #f8f8f2;
+            color: var(--text-color);
         }
-
         @media (max-width: 768px) {
             main {
                 flex-direction: column;
                 align-items: center;
             }
-
             .demo-container, .code-container {
                 width: 100%;
+            }
+        }
+        @media (max-width: 600px) {
+            .demo-container, .code-container {
+                padding: 1rem;
+            }
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            .joystick {
+                width: 150px;
+                height: 150px;
             }
         }
     </style>
 </head>
 <body>
     <header class="glassmorphic">
-        <h1>Virtual Joystick Demo</h1>
+        <h1>Virtual Joystick Maze Game</h1>
     </header>
     <main>
         <section class="demo-container glassmorphic">
@@ -132,9 +145,11 @@
                     <div>Delta Y: <span id="delta-y">0</span></div>
                 </div>
             </div>
+            <canvas id="mazeCanvas" width="300" height="300"></canvas>
             <div class="demo-actions">
                 <button id="change-color">Change Colors</button>
                 <button id="toggle-size">Toggle Size</button>
+                <button id="reset-game">Reset Game</button>
             </div>
         </section>
         <section class="code-container glassmorphic">
@@ -157,7 +172,6 @@ const joystick = new VirtualJoystick(joystickContainer, {
             </code></pre>
         </section>
     </main>
-
     <script>
         class VirtualJoystick {
             constructor(container, options = {}) {
@@ -173,7 +187,6 @@ const joystick = new VirtualJoystick(joystickContainer, {
                     },
                     options
                 );
-
                 this.joystick = document.createElement('div');
                 this.joystick.style.width = `${this.options.width}px`;
                 this.joystick.style.height = `${this.options.height}px`;
@@ -181,8 +194,8 @@ const joystick = new VirtualJoystick(joystickContainer, {
                 this.joystick.style.backgroundColor = this.options.color;
                 this.joystick.style.position = 'relative';
                 this.joystick.style.touchAction = 'none';
-                this.joystick.style.border = '3px solid black';
-                this.joystick.style.opacity = '50%';
+                this.joystick.style.border = '3px solid var(--secondary-color)';
+                this.joystick.style.opacity = '80%';
                 this.container.appendChild(this.joystick);
 
                 this.handle = document.createElement('div');
@@ -199,11 +212,9 @@ const joystick = new VirtualJoystick(joystickContainer, {
                 this.position = { x: 0, y: 0 };
                 this.delta = { x: 0, y: 0 };
                 this.handleRadius = this.options.handleRadius;
-                this.joystickRect = this.joystick.getBoundingClientRect();
-
+                               this.joystickRect = this.joystick.getBoundingClientRect();
                 this.isPressed = false;
                 this.touchId = null;
-
                 this._addEventListeners();
             }
 
@@ -265,7 +276,6 @@ const joystick = new VirtualJoystick(joystickContainer, {
                 this.joystickRect = this.joystick.getBoundingClientRect();
                 const dx = x - this.joystickRect.left - this.options.width / 2;
                 const dy = y - this.joystickRect.top - this.options.height / 2;
-
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 const maxDistance = this.options.width / 2 - this.options.handleRadius;
 
@@ -304,27 +314,88 @@ const joystick = new VirtualJoystick(joystickContainer, {
         const joystickContainer = document.querySelector('.joystick');
         const deltaX = document.querySelector('#delta-x');
         const deltaY = document.querySelector('#delta-y');
+        const canvas = document.getElementById('mazeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const maze = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+            [1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+
+        const tileSize = 30;
+        let playerX = 1;
+        let playerY = 1;
+
+        function drawMaze() {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = 'var(--primary-color)';
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    }
+                }
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'var(--secondary-color)';
+            ctx.beginPath();
+            ctx.arc(playerX * tileSize + tileSize / 2, playerY * tileSize + tileSize / 2, tileSize / 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMaze();
+            drawPlayer();
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = playerX + dx;
+            const newY = playerY + dy;
+            if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length && maze[newY][newX] === 0) {
+                playerX = newX;
+                playerY = newY;
+            }
+            updateGame();
+        }
+
+        updateGame();
 
         const joystick = new VirtualJoystick(joystickContainer, {
             width: 200,
             height: 200,
-            color: '#4a4a4a',
-            handleColor: '#ffffff',
+            color: 'var(--surface-color)',
+            handleColor: 'var(--secondary-color)',
             handleRadius: 40,
             onChange: function(delta) {
                 deltaX.textContent = delta.x.toFixed(2);
                 deltaY.textContent = delta.y.toFixed(2);
+                
+                if (Math.abs(delta.x) > Math.abs(delta.y)) {
+                    movePlayer(Math.sign(delta.x), 0);
+                } else {
+                    movePlayer(0, Math.sign(delta.y));
+                }
             },
         });
 
-        // Add interactivity
         const changeColorBtn = document.getElementById('change-color');
         const toggleSizeBtn = document.getElementById('toggle-size');
+        const resetGameBtn = document.getElementById('reset-game');
 
         changeColorBtn.addEventListener('click', () => {
             const randomColor = () => Math.floor(Math.random()*16777215).toString(16);
-            joystick.joystick.style.backgroundColor = "#" + randomColor();
-            joystick.handle.style.backgroundColor = "#" + randomColor();
+            document.documentElement.style.setProperty('--primary-color', "#" + randomColor());
+            document.documentElement.style.setProperty('--secondary-color', "#" + randomColor());
+            updateGame();
         });
 
         let isLarge = true;
@@ -342,6 +413,12 @@ const joystick = new VirtualJoystick(joystickContainer, {
             }
             isLarge = !isLarge;
             joystick._resetPosition();
+        });
+
+        resetGameBtn.addEventListener('click', () => {
+            playerX = 1;
+            playerY = 1;
+            updateGame();
         });
     </script>
 </body>
