@@ -1,3 +1,6 @@
+
+---
+
 # Virtual Joystick
 
 A customizable, touch-friendly virtual joystick implementation for web applications.
@@ -8,40 +11,46 @@ A customizable, touch-friendly virtual joystick implementation for web applicati
 
 Try out the Virtual Joystick right here:
 
-<iframe src="index.html" width="100%" height="400" frameborder="0"></iframe>
+<iframe src="https://joker-pyc.github.io/Virtual-Joystick/" width="100%" height="400" frameborder="0"></iframe>
 
 *Note: If the demo doesn't appear above, you can view it [here](https://joker-pyc.github.io/Virtual-Joystick/).*
 
-## Description
+---
 
-This Virtual Joystick module is an open-source project that provides a flexible and easy-to-use joystick interface for web applications. It's particularly useful for web-based games, simulations, or any application that requires directional input.
+## 📖 Description
 
-## Features
+The **Virtual Joystick** module is an open-source project that provides a flexible and easy-to-use joystick interface for web applications. It is particularly useful for:
 
-- 🎮 Customizable appearance (size, colors)
-- 🖱️ Support for both mouse and touch events
-- ⚡ Real-time position feedback
-- 🔌 Easy integration into existing web projects
-- 📱 Responsive design
+- Web-based games
+- Simulations
+- Any application that requires directional input.
 
-## Installation
+## ✨ Features
 
-To use the Virtual Joystick in your project, follow these steps:
+- 🎮 **Customizable appearance** (size, colors, etc.)
+- 🖱️ **Supports mouse and touch events**
+- ⚡ **Real-time position feedback**
+- 🔌 **Easy integration** into existing web projects
+- 📱 **Responsive design** for mobile and desktop
+
+## 📦 Installation
+
+To use the **Virtual Joystick** in your project, follow these steps:
 
 1. Download the `VirtualJoystick.js` file from this repository.
 2. Place it in your project directory.
-3. Import it into your JavaScript file:
+3. Import it into your JavaScript file as follows:
 
 ```javascript
 import VirtualJoystick from './path/to/VirtualJoystick.js';
 ```
 
-## Usage
+## 🚀 Usage Example
 
-Here's a basic example of how to create and use a Virtual Joystick:
+Here’s how you can create and use a **Virtual Joystick** in your web app:
 
 ```javascript
-// Get the container element where the joystick will be placed
+// Get the container element where the joystick will be rendered
 const container = document.getElementById('joystick-container');
 
 // Create a new VirtualJoystick instance
@@ -57,9 +66,9 @@ const joystick = new VirtualJoystick(container, {
 });
 ```
 
-## Customization
+## 🎨 Customization Options
 
-The VirtualJoystick is highly customizable. Here's a visual representation of the available options:
+The **Virtual Joystick** is highly customizable. Here are the available options and how they affect the appearance:
 
 ```
 ┌─────────────────────┐
@@ -77,20 +86,20 @@ The VirtualJoystick is highly customizable. Here's a visual representation of th
    width     height
 ```
 
-## Options
+## ⚙️ Options Table
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `width` | number | 100 | Width of the joystick base |
-| `height` | number | 100 | Height of the joystick base |
-| `color` | string | 'gray' | Background color of the joystick base |
-| `handleColor` | string | 'white' | Color of the joystick handle |
-| `handleRadius` | number | 20 | Radius of the joystick handle |
-| `onChange` | function | null | Callback function that receives the joystick's position |
+| Option        | Type     | Default | Description                                    |
+|---------------|----------|---------|------------------------------------------------|
+| `width`       | number   | 100     | Width of the joystick base                     |
+| `height`      | number   | 100     | Height of the joystick base                    |
+| `color`       | string   | 'gray'  | Background color of the joystick base          |
+| `handleColor` | string   | 'white' | Color of the joystick handle                   |
+| `handleRadius`| number   | 20      | Radius of the joystick handle                  |
+| `onChange`    | function | null    | Callback function receiving joystick position  |
 
-## Events
+## 📊 Events
 
-The `onChange` callback is triggered whenever the joystick's position changes. It receives a `delta` object with `x` and `y` properties, representing the joystick's position relative to its center. Values range from -1 to 1 for both axes.
+The `onChange` callback is triggered whenever the joystick’s position changes. The callback receives a `delta` object with `x` and `y` values ranging from -1 to 1, representing the joystick's position relative to its center.
 
 ```javascript
 onChange: (delta) => {
@@ -98,22 +107,24 @@ onChange: (delta) => {
 }
 ```
 
-## License
+## 📝 License
 
-This project is open-source and available under the MIT License.
+This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute it.
 
-## Author
+## 👤 Author
 
-Santosh Maurya
+Created by **Santosh Maurya**.
 
-## Contributing
+## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yourusername/virtual-joystick/issues) if you want to contribute.
+Contributions are welcome! If you'd like to report an issue or request a feature, please visit the [issues page](https://github.com/yourusername/virtual-joystick/issues).
 
-## Support
+## 📧 Support
 
-If you have any questions or need assistance, please [open an issue](https://github.com/yourusername/virtual-joystick/issues/new) in the project repository.
+If you have any questions, feel free to [open an issue](https://github.com/yourusername/virtual-joystick/issues/new) in the project repository.
 
 ---
 
 Made with ❤️ by developers, for developers.
+
+---
