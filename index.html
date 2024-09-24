@@ -1,358 +1,348 @@
-
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Virtual Joystick Usage Example</title>
-    
-  </head>
-  
-  <style>
-    
-    body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #222;
-  color: #fff;
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Joystick - Interactive Demo</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --text-color: #ffffff;
+            --background-color: #1a1a2e;
+        }
 
-header {
-  background-color: #333;
-  color: #fff;
-  padding: 10px;
-}
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-h1 {
-  margin: 0;
-}
+        .glassmorphic {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
 
-.joystick-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 50px;
-}
+        header {
+            text-align: center;
+            padding: 2rem;
+        }
 
-.debug-container {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: gray;
-}
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
 
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: start;
+            gap: 2rem;
+            padding: 2rem;
+        }
 
-pre {
-  margin: 20px;
-  background-color:#1E1E1E;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1px;
-  overflow-x: auto; /* Set overflow-x to auto */
-  white-space: pre-wrap; /* Wrap long lines of text */
-  max-width: 100%; /* Set maximum width to fit the page */
-}
+        .joystick-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-code {
-  font-family: monospace;
-  font-size: 1.1rem;
-}
+        .joystick {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 1rem;
+        }
 
-.info-text {
-  font-size: 1.1rem;
-  margin: 20px;
-  text-align: justify;
-  line-height: 1.5;
-}
+        .debug-container {
+            font-size: 1.2rem;
+            text-align: center;
+        }
 
-p {
-  margin: 20px;
-  text-align: justify;
-  line-height: 1.5;
-}
+        .demo-container, .code-container {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+            padding: 2rem;
+        }
 
-/* Responsive styles */
+        .demo-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-@media screen and (max-width: 768px) {
-  .joystick-container {
-    margin-top: 20px;
-  }
+        button {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-  .debug-container {
-    margin-top: 10px;
-  }
+        button:hover {
+            background-color: var(--primary-color);
+        }
 
-  pre {
-    margin: 10px;
-  }
+        pre {
+            background-color: var(--background-color);
+            border-radius: 10px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
 
-  .info-text,
-  p {
-    margin: 10px;
-    font-size: 0.9rem;
-  }
-}
+        code {
+            color: #f8f8f2;
+        }
 
-@media screen and (max-width: 480px) {
-  .joystick-container {
-    margin-top: 10px;
-  }
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
 
-  .debug-container {
-    margin-top: 5px;
-  }
-
-  pre {
-    margin: 5px;
-  }
-
-  .info-text,
-  p {
-    margin: 5px;
-    font-size: 0.8rem;
-  }
-}
-
-    
-  </style>
-    
-  <body class="dark-mode">
-    <header>
-      <h1>Virtual Joystick Usage Example</h1>
+            .demo-container, .code-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="glassmorphic">
+        <h1>Virtual Joystick Demo</h1>
     </header>
-    
-    <div class="joystick-container">
-      <div class="joystick"></div>
-      <div class="debug-container">
-        <div>Delta X: <span id="delta-x">0</span></div>
-        <div>Delta Y: <span id="delta-y">0</span></div>
-      </div>
-      <pre><code id="code-block">
-        import VirtualJoystick from './path-to/Joystick.js';
+    <main>
+        <section class="demo-container glassmorphic">
+            <div class="joystick-container">
+                <div class="joystick"></div>
+                <div class="debug-container">
+                    <div>Delta X: <span id="delta-x">0</span></div>
+                    <div>Delta Y: <span id="delta-y">0</span></div>
+                </div>
+            </div>
+            <div class="demo-actions">
+                <button id="change-color">Change Colors</button>
+                <button id="toggle-size">Toggle Size</button>
+            </div>
+        </section>
+        <section class="code-container glassmorphic">
+            <h2>Usage Example</h2>
+            <pre><code>
+import VirtualJoystick from './Joystick.js';
+
+const joystickContainer = document.querySelector('.joystick');
+const joystick = new VirtualJoystick(joystickContainer, {
+  width: 200,
+  height: 200,
+  color: '#4a4a4a',
+  handleColor: '#ffffff',
+  handleRadius: 40,
+  onChange: function(delta) {
+    console.log('Delta X:', delta.x.toFixed(2));
+    console.log('Delta Y:', delta.y.toFixed(2));
+  },
+});
+            </code></pre>
+        </section>
+    </main>
+
+    <script>
+        class VirtualJoystick {
+            constructor(container, options = {}) {
+                this.container = container;
+                this.options = Object.assign(
+                    {
+                        width: 100,
+                        height: 100,
+                        color: 'gray',
+                        handleColor: 'white',
+                        handleRadius: 20,
+                        onChange: null,
+                    },
+                    options
+                );
+
+                this.joystick = document.createElement('div');
+                this.joystick.style.width = `${this.options.width}px`;
+                this.joystick.style.height = `${this.options.height}px`;
+                this.joystick.style.borderRadius = '50%';
+                this.joystick.style.backgroundColor = this.options.color;
+                this.joystick.style.position = 'relative';
+                this.joystick.style.touchAction = 'none';
+                this.joystick.style.border = '3px solid black';
+                this.joystick.style.opacity = '50%';
+                this.container.appendChild(this.joystick);
+
+                this.handle = document.createElement('div');
+                this.handle.style.width = `${this.options.handleRadius * 2}px`;
+                this.handle.style.height = `${this.options.handleRadius * 2}px`;
+                this.handle.style.borderRadius = '50%';
+                this.handle.style.backgroundColor = this.options.handleColor;
+                this.handle.style.position = 'absolute';
+                this.handle.style.top = `${this.options.height / 2 - this.options.handleRadius}px`;
+                this.handle.style.left = `${this.options.width / 2 - this.options.handleRadius}px`;
+                this.handle.style.touchAction = 'none';
+                this.joystick.appendChild(this.handle);
+
+                this.position = { x: 0, y: 0 };
+                this.delta = { x: 0, y: 0 };
+                this.handleRadius = this.options.handleRadius;
+                this.joystickRect = this.joystick.getBoundingClientRect();
+
+                this.isPressed = false;
+                this.touchId = null;
+
+                this._addEventListeners();
+            }
+
+            _addEventListeners() {
+                this.handle.addEventListener('mousedown', this._handleMouseDown.bind(this));
+                document.addEventListener('mousemove', this._handleMouseMove.bind(this));
+                document.addEventListener('mouseup', this._handleMouseUp.bind(this));
+                this.handle.addEventListener('touchstart', this._handleTouchStart.bind(this));
+                document.addEventListener('touchend', this._handleTouchEnd.bind(this));
+                document.addEventListener('touchcancel', this._handleTouchEnd.bind(this));
+                document.addEventListener('touchmove', this._handleTouchMove.bind(this));
+            }
+
+            _handleMouseDown(event) {
+                this.isPressed = true;
+                this._updatePosition(event.clientX, event.clientY);
+            }
+
+            _handleMouseMove(event) {
+                if (this.isPressed) {
+                    this._updatePosition(event.clientX, event.clientY);
+                }
+            }
+
+            _handleMouseUp() {
+                this.isPressed = false;
+                this._resetPosition();
+            }
+
+            _handleTouchStart(event) {
+                if (this.touchId === null) {
+                    this.touchId = event.changedTouches[0].identifier;
+                    this.isPressed = true;
+                    this._updatePosition(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+                }
+            }
+
+            _handleTouchEnd(event) {
+                for (let i = 0; i < event.changedTouches.length; i++) {
+                    if (event.changedTouches[i].identifier === this.touchId) {
+                        this.touchId = null;
+                        this.isPressed = false;
+                        this._resetPosition();
+                        break;
+                    }
+                }
+            }
+
+            _handleTouchMove(event) {
+                for (let i = 0; i < event.changedTouches.length; i++) {
+                    if (event.changedTouches[i].identifier === this.touchId) {
+                        this._updatePosition(event.changedTouches[i].clientX, event.changedTouches[i].clientY);
+                        break;
+                    }
+                }
+            }
+
+            _updatePosition(x, y) {
+                this.joystickRect = this.joystick.getBoundingClientRect();
+                const dx = x - this.joystickRect.left - this.options.width / 2;
+                const dy = y - this.joystickRect.top - this.options.height / 2;
+
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const maxDistance = this.options.width / 2 - this.options.handleRadius;
+
+                if (distance > maxDistance) {
+                    const angle = Math.atan2(dy, dx);
+                    this.position = {
+                        x: Math.cos(angle) * maxDistance,
+                        y: Math.sin(angle) * maxDistance
+                    };
+                } else {
+                    this.position = { x: dx, y: dy };
+                }
+
+                this.delta = {
+                    x: this.position.x / maxDistance,
+                    y: this.position.y / maxDistance
+                };
+
+                this.handle.style.transform = `translate(${this.position.x}px, ${this.position.y}px)`;
+
+                if (typeof this.options.onChange === 'function') {
+                    this.options.onChange(this.delta);
+                }
+            }
+
+            _resetPosition() {
+                this.position = { x: 0, y: 0 };
+                this.delta = { x: 0, y: 0 };
+                this.handle.style.transform = `translate(0, 0)`;
+                if (typeof this.options.onChange === 'function') {
+                    this.options.onChange(this.delta);
+                }
+            }
+        }
 
         const joystickContainer = document.querySelector('.joystick');
         const deltaX = document.querySelector('#delta-x');
         const deltaY = document.querySelector('#delta-y');
 
         const joystick = new VirtualJoystick(joystickContainer, {
-          width: 150,
-          height: 150,
-          color: 'gray',
-          handleColor: 'white',
-          handleRadius: 30,
-          onChange: function(delta) {
-            //your code goes here....
-            deltaX.textContent = delta.x.toFixed(2);
-            deltaY.textContent = delta.y.toFixed(2);
-          },
+            width: 200,
+            height: 200,
+            color: '#4a4a4a',
+            handleColor: '#ffffff',
+            handleRadius: 40,
+            onChange: function(delta) {
+                deltaX.textContent = delta.x.toFixed(2);
+                deltaY.textContent = delta.y.toFixed(2);
+            },
         });
-      </code></pre>
 
-      <p class="info-text">
-        To use the VirtualJoystick class, first import it in your JavaScript file using the following code:
-      </p>
-      <pre><code>import VirtualJoystick from './path-to/Joystick.js';</code></pre>
-      <p class="info-text">
-        Then, create a new instance of the VirtualJoystick class and pass in a DOM element as the first argument to create the joystick interface. You can customize the appearance and behavior of the joystick by passing in an options object as the second argument. The <code>onChange</code> option allows you to specify a callback function that will be called whenever the position of the joystick handle changes. In the example above, we are updating the <code>deltaX</code> and <code>deltaY</code> elements with the new delta values on each change.
-      </p>
+        // Add interactivity
+        const changeColorBtn = document.getElementById('change-color');
+        const toggleSizeBtn = document.getElementById('toggle-size');
 
-      <p>
-        The VirtualJoystick is a JavaScript class that allows the creation of a
-        joystick interface for web applications. It provides the ability to
-        detect changes in position of the joystick handle and return this data
-        as an object containing the delta values for x and y.
-      </p>
-      <p>
-        The code above shows an example usage of the VirtualJoystick class,
-        creating a joystick interface with a gray base and white handle, 150
-        pixels in size, and displaying the delta x and y values as they are
-        updated in the DOM. The onChange callback function is used to update the
-        values of deltaX and deltaY elements.
-      </p>
-    </div>
+        changeColorBtn.addEventListener('click', () => {
+            const randomColor = () => Math.floor(Math.random()*16777215).toString(16);
+            joystick.joystick.style.backgroundColor = "#" + randomColor();
+            joystick.handle.style.backgroundColor = "#" + randomColor();
+        });
 
-
-    <script type="module">
-      
-      
-    
-      class VirtualJoystick {
-  constructor(container, options = {}) {
-    this.container = container;
-    this.options = Object.assign(
-      {
-        width: 100,
-        height: 100,
-        color: 'gray',
-        handleColor: 'white',
-        handleRadius: 20,
-        onChange: null,
-      },
-      options
-    );
-
-    this.joystick = document.createElement('div');
-    this.joystick.style.width = `${this.options.width}px`;
-    this.joystick.style.height = `${this.options.height}px`;
-    this.joystick.style.borderRadius = '50%';
-    this.joystick.style.backgroundColor = this.options.color;
-    this.joystick.style.position = 'relative';
-    this.joystick.style.touchAction = 'none';
-    this.joystick.style.border = '3px solid black';
-    this.joystick.style.opacity = '50%';
-    this.container.appendChild(this.joystick);
-
-    this.handle = document.createElement('div');
-    this.handle.style.width = `${this.options.handleRadius * 2}px`;
-    this.handle.style.height = `${this.options.handleRadius * 2}px`;
-    this.handle.style.borderRadius = '50%';
-    this.handle.style.backgroundColor = this.options.handleColor;
-    this.handle.style.position = 'absolute';
-    this.handle.style.top = `${this.options.height / 2 - this.options.handleRadius}px`;
-    this.handle.style.left = `${this.options.width / 2 - this.options.handleRadius}px`;
-    this.handle.style.touchAction = 'none';
-    this.joystick.appendChild(this.handle);
-
-    this.position = { x: 0, y: 0 };
-    this.delta = { x: 0, y: 0 };
-    this.handleRadius = this.options.handleRadius;
-    this.joystickRect = this.joystick.getBoundingClientRect();
-
-    this.isPressed = false;
-    this.touchId = null;
-
-    this._addEventListeners();
-  }
-
-  _addEventListeners() {
-    this.handle.addEventListener('mousedown', this._handleMouseDown.bind(this));
-    document.addEventListener('mousemove', this._handleMouseMove.bind(this));
-    document.addEventListener('mouseup', this._handleMouseUp.bind(this));
-    this.handle.addEventListener('touchstart', this._handleTouchStart.bind(this));
-    document.addEventListener('touchend', this._handleTouchEnd.bind(this));
-    document.addEventListener('touchcancel', this._handleTouchEnd.bind(this));
-    document.addEventListener('touchmove', this._handleTouchMove.bind(this));
-  }
-
-  _handleMouseDown(event) {
-    this.isPressed = true;
-    this._updatePosition(event.clientX, event.clientY);
-  }
-
-  _handleMouseMove(event) {
-    if (this.isPressed) {
-      this._updatePosition(event.clientX, event.clientY);
-    }
-  }
-
-  _handleMouseUp() {
-    this.isPressed = false;
-    this._resetPosition();
-  }
-
-  _handleTouchStart(event) {
-    if (this.touchId === null) {
-      this.touchId = event.changedTouches[0].identifier;
-      this.isPressed = true;
-      this._updatePosition(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-    }
-  }
-
-  _handleTouchEnd(event) {
-    for (let i = 0; i < event.changedTouches.length; i++) {
-      if (event.changedTouches[i].identifier === this.touchId) {
-        this.touchId = null;
-        this.isPressed = false;
-        this._resetPosition();
-        break;
-      }
-    }
-  }
-
-  _handleTouchMove(event) {
-    for (let i = 0; i < event.changedTouches.length; i++) {
-      if (event.changedTouches[i].identifier === this.touchId) {
-        this._updatePosition(event.changedTouches[i].clientX, event.changedTouches[i].clientY);
-        break;
-      }
-    }
-  }
-
-  _updatePosition(x, y) {
-    let clientX = x;
-    let clientY = y;
-
-    if (this.touchId !== null) {
-      for (let i = 0; i < event.changedTouches.length; i++) {
-        if (event.changedTouches[i].identifier === this.touchId) {
-          clientX = event.changedTouches[i].clientX;
-          clientY = event.changedTouches[i].clientY;
-          const dx = x - this.joystickRect.left - this.options.width / 2 + this.options.handleRadius;
-const dy = y - this.joystickRect.top - this.options.height / 2 + this.options.handleRadius;
-
-          break;
-        }
-      }
-    }
-
-    const dx = clientX - this.joystickRect.left - this.options.width / 2;
-    const dy = clientY - this.joystickRect.top - this.options.height / 2;
-
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > this.handleRadius) {
-      const angle = Math.atan2(dy, dx);
-      this.position = { x: Math.cos(angle) * this.handleRadius, y: Math.sin(angle) * this.handleRadius };
-    } else {
-      this.position = { x: dx, y: dy };
-    }
-
-    this.delta = { x: this.position.x / this.handleRadius, y: this.position.y / this.handleRadius };
-
-    this.handle.style.transform = `translate(${this.position.x}px, ${this.position.y}px)`;
-
-    if (typeof this.options.onChange === 'function') {
-      this.options.onChange(this.delta);
-    }
-  }
-
-  _resetPosition() {
-    this.position = { x: 0, y: 0 };
-    this.delta = { x: 0, y: 0 };
-
-    this.handle.style.transform = `translate(0, 0)`;
-
-    if (typeof this.options.onChange === 'function') {
-      this.options.onChange(this.delta);
-    }
-  }
-}
- 
-
-
-
-const joystickContainer = document.querySelector('.joystick');
-const deltaX = document.querySelector('#delta-x');
-const deltaY = document.querySelector('#delta-y');
-
-const joystick = new VirtualJoystick(joystickContainer, {
-  width: 150,
-  height: 150,
-  color: 'gray',
-  handleColor: 'white',
-  handleRadius: 30,
-  onChange: function(delta) {
-    deltaX.textContent = delta.x.toFixed(2);
-    deltaY.textContent = delta.y.toFixed(2);
-  },
-});
-
-      
+        let isLarge = true;
+        toggleSizeBtn.addEventListener('click', () => {
+            if (isLarge) {
+                joystick.joystick.style.width = '150px';
+                joystick.joystick.style.height = '150px';
+                joystick.handle.style.width = '60px';
+                joystick.handle.style.height = '60px';
+            } else {
+                joystick.joystick.style.width = '200px';
+                joystick.joystick.style.height = '200px';
+                joystick.handle.style.width = '80px';
+                joystick.handle.style.height = '80px';
+            }
+            isLarge = !isLarge;
+            joystick._resetPosition();
+        });
     </script>
-  </body>
+</body>
 </html>
-
-       
