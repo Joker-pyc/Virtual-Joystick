@@ -1,0 +1,115 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #222;
+    font-family: sans-serif;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+}
+
+#joystick-container {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.panel {
+    background-color: #333;
+    color: #eee;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 8px 8px 15px #111, -8px -8px 15px #333; /* Neumorphic effect */
+}
+
+.control-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+label {
+    margin-right: 10px;
+}
+
+input[type="number"],
+input[type="color"],
+select {
+    background-color: #444;
+    border: none;
+    color: #eee;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: inset 3px 3px 5px #222, inset -3px -3px 5px #444; /* Inset Neumorphic */
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #eee;
+    border-radius: 4px;
+    margin-right: 8px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 3px 3px 5px #222, -3px -3px 5px #444; /* Neumorphic checkbox */
+}
+
+input[type="checkbox"]:checked {
+    background-color: #555;
+}
+
+input[type="checkbox"]:checked::before {
+    content: '✔';
+    color: #eee;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+}
+
+button {
+    background-color: #555;
+    color: #eee;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 3px 3px 5px #222, -3px -3px 5px #444; /* Neumorphic button */
+}
+
+button:active {
+    box-shadow: inset 3px 3px 5px #222, inset -3px -3px 5px #444; /* Inset Neumorphic on click */
+}
+
+#zone-settings {
+    margin-top: 10px;
+}
+
+.zone-setting {
+    background-color: #444;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    box-shadow: 3px 3px 5px #222, -3px -3px 5px #444; /* Neumorphic zone setting */
+}
+
+.zone-setting label {
+    display: block;
+    margin-bottom: 5px;
+}
