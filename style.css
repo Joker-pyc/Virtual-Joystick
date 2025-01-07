@@ -3,7 +3,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #222;
+    background-color: #181818;
     font-family: sans-serif;
     flex-direction: column;
 }
@@ -26,12 +26,20 @@ body {
 }
 
 .panel {
-    background-color: #333;
+    background-color: #3c3c3c;
     color: #eee;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 8px 8px 15px #111, -8px -8px 15px #333; /* Neumorphic effect */
+    box-shadow: 
+        12px 12px 24px #1a1a1a,
+        -8px -8px 20px #1a1a1a,
+        inset 2px 2px 4px #1a1a1a,
+        inset -2px -2px 4px #1a1a1a;
+    transition: all 0.3s ease;
 }
+
+
+
 
 .control-group {
     display: flex;
