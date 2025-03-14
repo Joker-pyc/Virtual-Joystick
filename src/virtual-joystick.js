@@ -1,5 +1,30 @@
+/**
+ * VirtualJoystick - A customizable virtual joystick for web applications
+ * Author: @joker-pyc
+ * Version: 2.0.0
+ * Date: 2025-03-13
+ * Description: A customizable virtual joystick component for web applications.
+ * 
+ * Features:
+ * - Dynamic or static positioning
+ * - Customizable appearance and themes
+ * - Multiple control schemes (x/y axis locking, boundaries)
+ * - Zone detection with haptic feedback
+ * - Responsive design with auto-scaling
+ * - Multi-touch support
+ * - Event handling for touch and mouse inputs
+ */
 class VirtualJoystick {
+    /**
+     * Create a new virtual joystick
+     * @param {HTMLElement} container - The container element for the joystick
+     * @param {Object} options - Configuration options
+     */
     constructor(container, options = {}) {
+        if (!container || !(container instanceof HTMLElement)) {
+            throw new Error('VirtualJoystick requires a valid HTML element as container');
+        }
+
         this.container = container;
         this.options = {
             width: 100,
@@ -15,8 +40,8 @@ class VirtualJoystick {
             autoCenter: true,
             deadzone: 0.1,
             shape: 'circle',
-            mode: 'dynamic',
-            lockAxis: null,
+            mode: 'static', // 'static' or 'dynamic'
+            lockAxis: null, // null, 'x', or 'y'
             zones: [],
             vibration: true,
             theme: {
@@ -41,6 +66,10 @@ class VirtualJoystick {
         this.startAnimationLoop();
     }
 
+    /**
+     * Initialize internal properties
+     * @private
+     */
     initializeProperties() {
         this.position = { x: 0, y: 0 };
         this.delta = { x: 0, y: 0 };
@@ -50,28 +79,80 @@ class VirtualJoystick {
         this.touchId = null;
         this.initialPosition = { x: 0, y: 0 };
         this.currentZone = null;
+        this.maxRadius = this.options.width / 2;
+        this.requestId = null;
+        this._handleResizeBound = this._handleResize.bind(this);
     }
 
+    /**
+     * Create DOM elements for the joystick
+     * @private
+     */
     createElements() {
         this.joystick = document.createElement('div');
+        this.joystick.className = 'virtual-joystick';
+        
+        this.base = document.createElement('div');
+        this.base.className = 'joystick-base';
+        
         this.handle = document.createElement('div');
+        this.handle.className = 'joystick-handle';
+        
         this.zones = new Map();
         
-        if (this.options.zones.length) {
+        if (this.options.zones && this.options.zones.length) {
             this.createZones();
         }
     }
 
+    /**
+     * Create zone indicators
+     * @private
+     */
     createZones() {
         this.options.zones.forEach(zone => {
+            if (!zone.id || typeof zone.min !== 'number' || typeof zone.max !== 'number') {
+                console.warn('Invalid zone configuration', zone);
+                return;
+            }
+            
             const zoneElement = document.createElement('div');
             zoneElement.className = 'joystick-zone';
+            
+            const min = Math.min(1, Math.max(0, zone.min));
+            const max = Math.min(1, Math.max(0, zone.max));
+            const minRadius = min * this.maxRadius;
+            const maxRadius = max * this.maxRadius;
+            
             zoneElement.style.cssText = `
                 position: absolute;
-                border: 2px dashed ${zone.color || '#ffffff50'};
+                border: 2px dashed ${zone.color || 'rgba(255, 255, 255, 0.3)'};
                 border-radius: 50%;
                 pointer-events: none;
+                top: 50%;
+                left: 50%;
+                width: ${maxRadius * 2}px;
+                height: ${maxRadius * 2}px;
+                transform: translate(-50%, -50%);
             `;
+            
+            if (min > 0) {
+                const innerZone = document.createElement('div');
+                innerZone.className = 'joystick-zone-inner';
+                innerZone.style.cssText = `
+                    position: absolute;
+                    border: 2px dashed ${zone.color || 'rgba(255, 255, 255, 0.3)'};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    top: 50%;
+                    left: 50%;
+                    width: ${minRadius * 2}px;
+                    height: ${minRadius * 2}px;
+                    transform: translate(-50%, -50%);
+                `;
+                zoneElement.appendChild(innerZone);
+            }
+            
             this.zones.set(zone.id, {
                 element: zoneElement,
                 config: zone
@@ -80,26 +161,45 @@ class VirtualJoystick {
         });
     }
 
+    /**
+     * Set up the joystick appearance
+     * @private
+     */
     setupJoystick() {
         const { width, height, theme, shape } = this.options;
         
         this.joystick.style.cssText = `
             width: ${width}px;
             height: ${height}px;
-            border-radius: ${shape === 'circle' ? '50%' : '10px'};
-            background: ${theme.base.background};
-            border: ${theme.base.border};
-            box-shadow: ${theme.base.shadow};
             position: relative;
             touch-action: none;
             user-select: none;
         `;
 
+        this.base.style.cssText = `
+            width: 100%;
+            height: 100%;
+            border-radius: ${shape === 'circle' ? '50%' : '10px'};
+            background: ${theme.base.background};
+            border: ${theme.base.border};
+            box-shadow: ${theme.base.shadow};
+            position: absolute;
+            top: 0;
+            left: 0;
+        `;
+
         this.setupHandle();
+        this.joystick.appendChild(this.base);
+        this.joystick.appendChild(this.handle);
         this.container.appendChild(this.joystick);
         this.joystickRect = this.joystick.getBoundingClientRect();
+        this.maxRadius = Math.min(width, height) / 2 - this.options.handleRadius;
     }
 
+    /**
+     * Set up the joystick handle
+     * @private
+     */
     setupHandle() {
         const { handleRadius, theme } = this.options;
         
@@ -114,82 +214,153 @@ class VirtualJoystick {
             touch-action: none;
             transition: transform 0.1s ease-out;
             cursor: grab;
+            will-change: transform;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            z-index: 10;
         `;
-
-        this.centerHandle();
-        this.joystick.appendChild(this.handle);
     }
 
-    centerHandle() {
-        const { width, height, handleRadius } = this.options;
-        this.handle.style.top = `${(height / 2) - handleRadius}px`;
-        this.handle.style.left = `${(width / 2) - handleRadius}px`;
-    }
-
+    /**
+     * Set up event listeners
+     * @private
+     */
     setupEventListeners() {
-        this.handle.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        this.handle.addEventListener('touchstart', this.handleTouchStart.bind(this));
+        // For static mode, listen to events on the joystick base
+        const targetElement = this.options.mode === 'static' ? this.joystick : this.handle;
+        
+        // Use passive: false for touch events to allow preventDefault()
+        targetElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        targetElement.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+        
         document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        document.addEventListener('touchmove', this.handleTouchMove.bind(this));
+        document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
         document.addEventListener('mouseup', this.handleMouseUp.bind(this));
         document.addEventListener('touchend', this.handleTouchEnd.bind(this));
         document.addEventListener('touchcancel', this.handleTouchEnd.bind(this));
-        window.addEventListener('resize', this._handleResize.bind(this));
-        window.addEventListener('orientationchange', this._handleResize.bind(this));
+        
+        window.addEventListener('resize', this._handleResizeBound);
+        window.addEventListener('orientationchange', this._handleResizeBound);
     }
 
+    /**
+     * Handle mouse down event
+     * @param {MouseEvent} event - The mouse event
+     * @private
+     */
     handleMouseDown(event) {
+        event.preventDefault();
+        
         if (this.options.mode === 'dynamic') {
-            this.initialPosition = {
-                x: event.clientX,
-                y: event.clientY
-            };
+            const rect = this.container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            this.joystick.style.position = 'absolute';
+            this.joystick.style.left = `${x - this.options.width / 2}px`;
+            this.joystick.style.top = `${y - this.options.height / 2}px`;
+            this.joystickRect = this.joystick.getBoundingClientRect();
         }
+        
         this.isPressed = true;
         this.handle.style.cursor = 'grabbing';
         this.updatePosition(event.clientX, event.clientY);
-        this.options.onStart?.();
+        
+        if (typeof this.options.onStart === 'function') {
+            this.options.onStart({
+                position: this.position,
+                delta: this.delta,
+                angle: this.angle,
+                distance: this.distance
+            });
+        }
     }
 
+    /**
+     * Handle mouse move event
+     * @param {MouseEvent} event - The mouse event
+     * @private
+     */
     handleMouseMove(event) {
         if (this.isPressed) {
+            event.preventDefault();
             this.updatePosition(event.clientX, event.clientY);
         }
     }
 
-    handleMouseUp() {
+    /**
+     * Handle mouse up event
+     * @param {MouseEvent} event - The mouse event
+     * @private
+     */
+    handleMouseUp(event) {
         if (this.isPressed) {
+            event.preventDefault();
             this.isPressed = false;
             this.handle.style.cursor = 'grab';
+            
             if (this.options.autoCenter) {
                 this.resetPosition();
             }
-            this.options.onEnd?.();
+            
+            if (typeof this.options.onEnd === 'function') {
+                this.options.onEnd({
+                    position: this.position,
+                    delta: this.delta,
+                    angle: this.angle,
+                    distance: this.distance
+                });
+            }
         }
     }
 
+    /**
+     * Handle touch start event
+     * @param {TouchEvent} event - The touch event
+     * @private
+     */
     handleTouchStart(event) {
         event.preventDefault();
+        
         if (this.touchId === null) {
             const touch = event.changedTouches[0];
             this.touchId = touch.identifier;
             
             if (this.options.mode === 'dynamic') {
-                this.initialPosition = {
-                    x: touch.clientX,
-                    y: touch.clientY
-                };
+                const rect = this.container.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                this.joystick.style.position = 'absolute';
+                this.joystick.style.left = `${x - this.options.width / 2}px`;
+                this.joystick.style.top = `${y - this.options.height / 2}px`;
+                this.joystickRect = this.joystick.getBoundingClientRect();
             }
             
             this.isPressed = true;
             this.updatePosition(touch.clientX, touch.clientY);
-            this.options.onStart?.();
+            
+            if (typeof this.options.onStart === 'function') {
+                this.options.onStart({
+                    position: this.position,
+                    delta: this.delta,
+                    angle: this.angle,
+                    distance: this.distance
+                });
+            }
         }
     }
 
+    /**
+     * Handle touch move event
+     * @param {TouchEvent} event - The touch event
+     * @private
+     */
     handleTouchMove(event) {
-        event.preventDefault();
         if (this.isPressed) {
+            event.preventDefault();
+            
             for (let i = 0; i < event.changedTouches.length; i++) {
                 const touch = event.changedTouches[i];
                 if (touch.identifier === this.touchId) {
@@ -200,58 +371,101 @@ class VirtualJoystick {
         }
     }
 
+    /**
+     * Handle touch end event
+     * @param {TouchEvent} event - The touch event
+     * @private
+     */
     handleTouchEnd(event) {
         for (let i = 0; i < event.changedTouches.length; i++) {
             if (event.changedTouches[i].identifier === this.touchId) {
                 this.touchId = null;
                 this.isPressed = false;
+                
                 if (this.options.autoCenter) {
                     this.resetPosition();
                 }
-                this.options.onEnd?.();
+                
+                if (typeof this.options.onEnd === 'function') {
+                    this.options.onEnd({
+                        position: this.position,
+                        delta: this.delta,
+                        angle: this.angle,
+                        distance: this.distance
+                    });
+                }
                 break;
             }
         }
     }
 
+    /**
+     * Update the joystick position based on input coordinates
+     * @param {number} clientX - The x coordinate
+     * @param {number} clientY - The y coordinate
+     * @private
+     */
     updatePosition(clientX, clientY) {
         const { sensitivity, boundaries, lockAxis, deadzone } = this.options;
-        let dx = (clientX - this.joystickRect.left - this.options.width / 2) * sensitivity;
-        let dy = (clientY - this.joystickRect.top - this.options.height / 2) * sensitivity;
+        const centerX = this.joystickRect.left + this.joystickRect.width / 2;
+        const centerY = this.joystickRect.top + this.joystickRect.height / 2;
+        
+        let dx = (clientX - centerX) * sensitivity;
+        let dy = (clientY - centerY) * sensitivity;
 
         if (lockAxis === 'x') dy = 0;
         if (lockAxis === 'y') dx = 0;
 
         const distance = Math.sqrt(dx * dx + dy * dy);
+        let normalizedDistance = distance / this.maxRadius;
         this.angle = Math.atan2(dy, dx);
-        this.distance = distance;
-
-        if (boundaries) {
-            const maxDistance = this.options.handleRadius;
-            if (distance > maxDistance) {
-                dx = Math.cos(this.angle) * maxDistance;
-                dy = Math.sin(this.angle) * maxDistance;
-            }
+        
+        // Apply boundaries if enabled
+        if (boundaries && distance > this.maxRadius) {
+            dx = Math.cos(this.angle) * this.maxRadius;
+            dy = Math.sin(this.angle) * this.maxRadius;
+            normalizedDistance = 1;
         }
-
-        if (distance < (this.options.handleRadius * deadzone)) {
+        
+        // Apply deadzone
+        if (normalizedDistance < deadzone) {
             dx = 0;
             dy = 0;
+            normalizedDistance = 0;
         }
 
         this.position = { x: dx, y: dy };
         this.delta = {
-            x: dx / this.options.handleRadius,
-            y: dy / this.options.handleRadius
+            x: dx / this.maxRadius,
+            y: dy / this.maxRadius
         };
+        this.distance = normalizedDistance;
 
-        this.handle.style.transform = `translate(${dx}px, ${dy}px)`;
+       // Calculate normalized values between -1 and 1
+       const nx = Math.abs(normalizedDistance) < deadzone ? 
+            0 : (dx / this.maxRadius);
+        const ny = Math.abs(normalizedDistance) < deadzone ? 
+            0 : (dy / this.maxRadius);
+        
+        // Ensure we don't exceed boundaries
+        this.delta = {
+            x: Math.max(-1, Math.min(1, nx)),
+            y: Math.max(-1, Math.min(1, ny))
+        };
+        
+        // Update handle position using transform for better performance
+        this.handle.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        
         this.checkZones();
         this.emitChange();
     }
 
+    /**
+     * Check if the joystick is in any defined zones
+     * @private
+     */
     checkZones() {
-        if (!this.options.zones.length) return;
+        if (!this.options.zones || !this.options.zones.length) return;
 
         const distance = Math.sqrt(this.delta.x ** 2 + this.delta.y ** 2);
         let newZone = null;
@@ -265,12 +479,20 @@ class VirtualJoystick {
 
         if (this.currentZone !== newZone) {
             this.currentZone = newZone;
-            if (newZone && this.options.vibration) {
-                navigator.vibrate?.(50);
+            if (newZone && this.options.vibration && navigator.vibrate) {
+                try {
+                    navigator.vibrate(50);
+                } catch (e) {
+                    // Vibration API not supported or permission denied
+                }
             }
         }
     }
 
+    /**
+     * Emit change event with current joystick state
+     * @private
+     */
     emitChange() {
         if (typeof this.options.onChange === 'function') {
             this.options.onChange({
@@ -278,36 +500,42 @@ class VirtualJoystick {
                 delta: this.delta,
                 angle: this.angle,
                 distance: this.distance,
-                zone: this.currentZone
+                zone: this.currentZone,
+                isPressed: this.isPressed
             });
         }
     }
 
+    /**
+     * Handle resize events
+     * @private
+     */
     _handleResize() {
         this.joystickRect = this.joystick.getBoundingClientRect();
+        this.maxRadius = Math.min(this.joystickRect.width, this.joystickRect.height) / 2 - this.options.handleRadius;
         
         if (this.isPressed) {
-            const centerX = this.joystickRect.left + this.options.width / 2;
-            const centerY = this.joystickRect.top + this.options.height / 2;
-            
             if (this.touchId !== null) {
-                const touch = Array.from(event.touches).find(t => t.identifier === this.touchId);
-                if (touch) {
-                    this.updatePosition(touch.clientX, touch.clientY);
+                // Find the active touch
+                const touches = document.createTouchList?.() || [];
+                for (let i = 0; i < touches?.length || 0; i++) {
+                    if (touches[i].identifier === this.touchId) {
+                        this.updatePosition(touches[i].clientX, touches[i].clientY);
+                        break;
+                    }
                 }
-            } else {
-                this.updatePosition(
-                    centerX + this.position.x,
-                    centerY + this.position.y
-                );
             }
-        } else {
-            this.centerHandle();
+        } else if (this.options.autoCenter) {
+            this.resetPosition();
         }
         
         this.refreshJoystick();
     }
 
+    /**
+     * Start the animation loop for continuous updates
+     * @private
+     */
     startAnimationLoop() {
         const animate = () => {
             if (this.isPressed) {
@@ -318,6 +546,10 @@ class VirtualJoystick {
         this.requestId = requestAnimationFrame(animate);
     }
 
+    /**
+     * Reset the joystick to center position
+     * @public
+     */
     resetPosition() {
         this.position = { x: 0, y: 0 };
         this.delta = { x: 0, y: 0 };
@@ -325,39 +557,135 @@ class VirtualJoystick {
         this.distance = 0;
         this.currentZone = null;
         
-        this.handle.style.transform = 'translate(0, 0)';
-        this.isPressed = false;
-        this.touchId = null;
+        this.handle.style.transform = 'translate(-50%, -50%)';
         
         this.emitChange();
     }
 
+    /**
+     * Refresh the joystick appearance
+     * @public
+     */
     refreshJoystick() {
         const containerRect = this.container.getBoundingClientRect();
-        const scale = Math.min(
-            containerRect.width / this.options.width,
-            containerRect.height / this.options.height
-        );
         
-        const newWidth = this.options.width * scale;
-        const newHeight = this.options.height * scale;
+        // Only resize if we're in responsive mode
+        if (this.options.responsive !== false) {
+            const scale = Math.min(
+                containerRect.width / this.options.width,
+                containerRect.height / this.options.height
+            );
+            
+            const newWidth = this.options.width * scale;
+            const newHeight = this.options.height * scale;
+            
+            this.joystick.style.width = `${newWidth}px`;
+            this.joystick.style.height = `${newHeight}px`;
+            
+            const handleSize = this.options.handleRadius * 2 * scale;
+            this.handle.style.width = `${handleSize}px`;
+            this.handle.style.height = `${handleSize}px`;
+        }
         
-        this.joystick.style.width = `${newWidth}px`;
-        this.joystick.style.height = `${newHeight}px`;
-        
-        const handleSize = this.options.handleRadius * 2 * scale;
-        this.handle.style.width = `${handleSize}px`;
-        this.handle.style.height = `${handleSize}px`;
-        
-        this.centerHandle();
+        // Update rects after resize
         this.joystickRect = this.joystick.getBoundingClientRect();
+        this.maxRadius = Math.min(this.joystickRect.width, this.joystickRect.height) / 2 - this.options.handleRadius;
+
+        // Update zone sizes
+        this.options.zones?.forEach(zone => {
+            const zoneObj = this.zones.get(zone.id);
+            if (zoneObj) {
+                const min = Math.min(1, Math.max(0, zone.min));
+                const max = Math.min(1, Math.max(0, zone.max));
+                const minRadius = min * this.maxRadius;
+                const maxRadius = max * this.maxRadius;
+                
+                zoneObj.element.style.width = `${maxRadius * 2}px`;
+                zoneObj.element.style.height = `${maxRadius * 2}px`;
+                
+                const innerZone = zoneObj.element.querySelector('.joystick-zone-inner');
+                if (innerZone) {
+                    innerZone.style.width = `${minRadius * 2}px`;
+                    innerZone.style.height = `${minRadius * 2}px`;
+                }
+            }
+        });
     }
 
+    /**
+     * Set a new option value
+     * @param {string} option - The option name
+     * @param {*} value - The new value
+     * @public
+     */
+    setOption(option, value) {
+        if (option in this.options) {
+            this.options[option] = value;
+            
+            // Handle special cases
+            if (option === 'theme') {
+                this.base.style.background = value.base.background;
+                this.base.style.border = value.base.border;
+                this.base.style.boxShadow = value.base.shadow;
+                
+                this.handle.style.background = value.handle.background;
+                this.handle.style.border = value.handle.border;
+                this.handle.style.boxShadow = value.handle.shadow;
+            } else if (option === 'handleRadius') {
+                this.handle.style.width = `${value * 2}px`;
+                this.handle.style.height = `${value * 2}px`;
+                this.maxRadius = Math.min(this.joystickRect.width, this.joystickRect.height) / 2 - value;
+            } else if (option === 'shape') {
+                this.base.style.borderRadius = value === 'circle' ? '50%' : '10px';
+            } else if (option === 'zones') {
+                // Clear existing zones
+                this.zones.forEach(zone => {
+                    this.joystick.removeChild(zone.element);
+                });
+                this.zones.clear();
+                
+                // Create new zones
+                this.createZones();
+            }
+            
+            this.refreshJoystick();
+        }
+    }
+
+    /**
+     * Get the current joystick state
+     * @returns {Object} The current state
+     * @public
+     */
+    getState() {
+        return {
+            position: this.position,
+            delta: this.delta,
+            angle: this.angle,
+            distance: this.distance,
+            zone: this.currentZone,
+            isPressed: this.isPressed
+        };
+    }
+
+    /**
+     * Clean up and remove the joystick
+     * @public
+     */
     destroy() {
-        this.container.removeChild(this.joystick);
-        window.removeEventListener('resize', this._handleResize.bind(this));
-        window.removeEventListener('orientationchange', this._handleResize.bind(this));
-        cancelAnimationFrame(this.requestId);
+        if (this.container.contains(this.joystick)) {
+            this.container.removeChild(this.joystick);
+        }
+        
+        // Remove event listeners
+        window.removeEventListener('resize', this._handleResizeBound);
+        window.removeEventListener('orientationchange', this._handleResizeBound);
+        
+        // Cancel animation frame
+        if (this.requestId) {
+            cancelAnimationFrame(this.requestId);
+            this.requestId = null;
+        }
     }
 }
 
