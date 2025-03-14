@@ -4,111 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtual Joystick Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div id="joystick-container"></div>
-        <div class="panel">
-            <h2>Joystick Controls</h2>
-            <div class="control-group">
-                <label for="width">Width:</label>
-                <input type="number" id="width" value="150">
+    <div class="app-container">
+        <header>
+            <h1><i class="fas fa-gamepad"></i> Virtual Joystick Demo</h1>
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch" class="theme-switch">
+                <label for="theme-switch" class="theme-label">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <div class="ball"></div>
+                </label>
             </div>
-            <div class="control-group">
-                <label for="height">Height:</label>
-                <input type="number" id="height" value="150">
+        </header>
+
+        <main>
+            <div class="preview-section">
+                <div class="joystick-wrapper">
+                    <div id="joystick-container"></div>
+                </div>
+                <div class="output-display">
+                    <div class="output-card">
+                        <div class="output-group">
+                            <span class="output-label">Position:</span>
+                            <span class="output-value">X: <span id="positionX">0.00</span>, Y: <span id="positionY">0.00</span></span>
+                        </div>
+                        <div class="output-group">
+                            <span class="output-label">Delta:</span>
+                            <span class="output-value">X: <span id="deltaX">0.00</span>, Y: <span id="deltaY">0.00</span></span>
+                        </div>
+                        <div class="output-group">
+                            <span class="output-label">Angle:</span>
+                            <span class="output-value"><span id="angle">0.00</span>°</span>
+                        </div>
+                        <div class="output-group">
+                            <span class="output-label">Distance:</span>
+                            <span class="output-value"><span id="distance">0.00</span></span>
+                        </div>
+                        <div class="output-group">
+                            <span class="output-label">Zone:</span>
+                            <span class="output-value"><span id="currentZone">None</span></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="control-group">
-                <label for="handleRadius">Handle Radius:</label>
-                <input type="number" id="handleRadius" value="30">
+
+            <div class="controls-section">
+                <div class="controls-tabs">
+                    <button class="tab-button active" data-tab="basic">Basic</button>
+                    <button class="tab-button" data-tab="appearance">Appearance</button>
+                    <button class="tab-button" data-tab="behavior">Behavior</button>
+                    <button class="tab-button" data-tab="zones">Zones</button>
+                </div>
+
+                <div class="tab-content active" id="basic-tab">
+                    <div class="control-card">
+                        <h3>Size & Position</h3>
+                        <div class="control-group">
+                            <label for="width">Width:</label>
+                            <div class="slider-container">
+                                <input type="range" id="width-slider" min="50" max="300" value="150" class="slider">
+                                <input type="number" id="width" value="150" min="50" max="300">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="height">Height:</label>
+                            <div class="slider-container">
+                                <input type="range" id="height-slider" min="50" max="300" value="150" class="slider">
+                                <input type="number" id="height" value="150" min="50" max="300">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="handleRadius">Handle Radius:</label>
+                            <div class="slider-container">
+                                <input type="range" id="handleRadius-slider" min="10" max="60" value="30" class="slider">
+                                <input type="number" id="handleRadius" value="30" min="10" max="60">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="appearance-tab">
+                    <div class="control-card">
+                        <h3>Colors & Shape</h3>
+                        <div class="control-group">
+                            <label for="color">Base Color:</label>
+                            <div class="color-picker-container">
+                                <input type="color" id="color" value="#808080">
+                                <input type="text" id="color-text" value="#808080" class="color-text">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="handleColor">Handle Color:</label>
+                            <div class="color-picker-container">
+                                <input type="color" id="handleColor" value="#ffffff">
+                                <input type="text" id="handleColor-text" value="#ffffff" class="color-text">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="shape">Shape:</label>
+                            <div class="select-container">
+                                <select id="shape">
+                                    <option value="circle">Circle</option>
+                                    <option value="square">Square</option>
+                                </select>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="behavior-tab">
+                    <div class="control-card">
+                        <h3>Joystick Behavior</h3>
+                        <div class="control-group">
+                            <label for="sensitivity">Sensitivity:</label>
+                            <div class="slider-container">
+                                <input type="range" id="sensitivity-slider" min="0.1" max="2" value="1" step="0.1" class="slider">
+                                <input type="number" id="sensitivity" value="1" min="0.1" max="2" step="0.1">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="deadzone">Deadzone:</label>
+                            <div class="slider-container">
+                                <input type="range" id="deadzone-slider" min="0" max="1" value="0.1" step="0.05" class="slider">
+                                <input type="number" id="deadzone" value="0.1" min="0" max="1" step="0.05">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="mode">Mode:</label>
+                            <div class="select-container">
+                                <select id="mode">
+                                    <option value="dynamic">Dynamic</option>
+                                    <option value="static">Static</option>
+                                </select>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="lockAxis">Lock Axis:</label>
+                            <div class="select-container">
+                                <select id="lockAxis">
+                                    <option value="">None</option>
+                                    <option value="x">X</option>
+                                    <option value="y">Y</option>
+                                </select>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="control-group checkbox-group">
+                            <label for="boundaries">
+                                <input type="checkbox" id="boundaries">
+                                <span class="custom-checkbox"></span>
+                                Enable Boundaries
+                            </label>
+                        </div>
+                        <div class="control-group checkbox-group">
+                            <label for="autoCenter">
+                                <input type="checkbox" id="autoCenter" checked>
+                                <span class="custom-checkbox"></span>
+                                Auto Center
+                            </label>
+                        </div>
+                        <div class="control-group checkbox-group">
+                            <label for="vibration">
+                                <input type="checkbox" id="vibration" checked>
+                                <span class="custom-checkbox"></span>
+                                Vibration <Feedbac></Feedbac>k
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="zones-tab">
+                    <div class="control-card">
+                        <h3>Zones Configuration</h3>
+                        <button id="addZone" class="btn-primary">
+                            <i class="fas fa-plus"></i> Add New Zone
+                        </button>
+                        <div id="zone-settings" class="zones-container">
+                            <!-- Zone settings will be added here -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="control-group">
-                <label for="color">Base Color:</label>
-                <input type="color" id="color" value="#808080">
+        </main>
+
+        <footer>
+            <div class="action-buttons">
+                <button id="save-config" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Configuration
+                </button>
+                <button id="reset-config" class="btn-secondary">
+                    <i class="fas fa-undo"></i> Reset to Default
+                </button>
             </div>
-            <div class="control-group">
-                <label for="handleColor">Handle Color:</label>
-                <input type="color" id="handleColor" value="#ffffff">
-            </div>
-            <div class="control-group">
-                <label for="sensitivity">Sensitivity:</label>
-                <input type="number" id="sensitivity" value="1" min="0.1" max="2" step="0.1">
-            </div>
-            <div class="control-group">
-                <label for="deadzone">Deadzone:</label>
-                <input type="number" id="deadzone" value="0.1" min="0" max="1" step="0.05">
-            </div>
-            <div class="control-group">
-                <label for="boundaries">Boundaries:</label>
-                <input type="checkbox" id="boundaries">
-            </div>
-            <div class="control-group">
-                <label for="autoCenter">Auto Center:</label>
-                <input type="checkbox" id="autoCenter" checked>
-            </div>
-            <div class="control-group">
-                <label for="shape">Shape:</label>
-                <select id="shape">
-                    <option value="circle">Circle</option>
-                    <option value="square">Square</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="mode">Mode:</label>
-                <select id="mode">
-                    <option value="dynamic">Dynamic</option>
-                    <option value="static">Static</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="lockAxis">Lock Axis:</label>
-                <select id="lockAxis">
-                    <option value="">None</option>
-                    <option value="x">X</option>
-                    <option value="y">Y</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="vibration">Vibration:</label>
-                <input type="checkbox" id="vibration" checked>
-            </div>
-            <div class="control-group">
-                <button id="addZone">Add Zone</button>
-            </div>
-            <div id="zone-settings">
-                <!-- Zone settings will be added here -->
-            </div>
-            <div class="control-group">
-                <label for="positionX">Position X:</label>
-                <input type="number" id="positionX" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="positionY">Position Y:</label>
-                <input type="number" id="positionY" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="deltaX">Delta X:</label>
-                <input type="number" id="deltaX" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="deltaY">Delta Y:</label>
-                <input type="number" id="deltaY" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="angle">Angle:</label>
-                <input type="number" id="angle" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="distance">Distance:</label>
-                <input type="number" id="distance" value="0" disabled>
-            </div>
-            <div class="control-group">
-                <label for="currentZone">Current Zone:</label>
-                <input type="text" id="currentZone" value="None" disabled>
-            </div>
-        </div>
+        </footer>
     </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    
     <script type="module" src="script.js"></script>
 </body>
 </html>
